@@ -14,6 +14,11 @@ def hello():
 def user_page(name):
     return f'User: {escape(name)}'
 
+# 对于 URL 变量，Flask 支持在 URL 规则字符串里对变量设置处理器，对变量进行预处理
+@app.route('/user/<int:number>')
+def test_number(number):
+    return f'User: {escape(type(number))}'
+
 @app.route('/test')
 def test_url_for():
     # 下面是一些调用示例（请访问 http://localhost:5000/test 后在命令行窗口查看输出的 URL）：
