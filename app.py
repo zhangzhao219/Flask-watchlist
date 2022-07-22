@@ -25,6 +25,10 @@ class Movie(db.Model):  # 表名将会是 movie
 @app.cli.command()
 def forge():
     """Generate fake data."""
+    try:
+        db.drop_all()
+    except:
+        click.echo('No database exists.')
     db.create_all()
     click.echo('Initialized database.')  # 输出提示信息
 
@@ -52,11 +56,6 @@ def forge():
     db.session.commit()
     click.echo('Done.')
 
-# 注册一个处理函数
-@app.route('/')
-def index():
-    return render_template('index.html', name=name, movies=movies) # 渲染模板
-
 # 用户输入的数据可能会包含恶意代码，使用 MarkupSafe 提供的 escape() 函数对 name 变量进行转义处理
 @app.route('/user/<name>')
 def user_page(name):
@@ -78,3 +77,20 @@ def test_url_for():
     # 下面这个调用传入了多余的关键字参数，它们会被作为查询字符串附加到 URL 后面。
     print(url_for('test_url_for', num=2))  # 输出：/test?num=2
     return 'Test page'
+
+# 模板上下文处理函数,这个函数返回的变量将会统一注入到每一个模板的上下文环境中
+@app.context_processor
+def inject_user():
+    user = User.query.first()
+    return dict(user=user)
+
+# 404 错误处理函数
+@app.errorhandler(404)
+def page_not_found(e):
+    return render_template('404.html'), 404
+
+
+@app.route('/')
+def index():
+    movies = Movie.query.all()
+    return render_template('index.html', movies=movies)
