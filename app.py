@@ -61,6 +61,15 @@ def admin(username, password):
     db.session.commit()  # 提交数据库会话
     click.echo('Done.')
 
+@app.cli.command()  # 注册为命令，可以传入 name 参数来自定义命令
+@click.option('--drop', is_flag=True, help='Create after drop.')  # 设置选项
+def initdb(drop):
+    """Initialize the database."""
+    if drop:  # 判断是否输入了选项
+        db.drop_all()
+    db.create_all()
+    click.echo('Initialized database.')  # 输出提示信息
+
 # 编写一个命令函数把虚拟数据添加到数据库里
 @app.cli.command()
 def forge():
